@@ -1,0 +1,26 @@
+{
+  "name": "byunx",
+  "version": "0.0.1",
+  "description": "simple state management",
+  "main": "dist/index",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "tsc",
+    "test": "mocha --compilers ts:ts-node/register tests/**.test.ts",
+    "test:watch": "mocha --watch --compilers ts:ts-node/register tests/**.test.ts"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "tslib": "^1.7.1",
+    "@types/chai": "^4.0.1",
+    "@types/mocha": "^2.2.41",
+    "chai": "^4.1.0",
+    "mocha": "^3.4.2",
+    "ts-node": "^3.3.0",
+    "typescript": "^2.4.2"
+  }
+}
