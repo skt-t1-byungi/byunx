@@ -25,11 +25,11 @@ export namespace I {
 export default class ByunX<T extends object> {
     private _data: T;
 
-    private _readOnlyData: T;
+    private _readOnlyData: Readonly<T>;
 
     private _actions: I.Actions<T> = {};
 
-    private emitter = new Emitter;
+    private _emitter = new Emitter;
 
     constructor(data: T) {
         this._data = deepcopy(data);
@@ -41,12 +41,12 @@ export default class ByunX<T extends object> {
         this._readOnlyData = deepfreeze(deepcopy(this._data));
     }
 
-    get(key?: string) {
+    get(key?: string, defaultValue = null) {
         if (!key) {
             return this._readOnlyData;
         }
 
-        return object_get(this._readOnlyData, key);
+        return object_get(this._readOnlyData, key, defaultValue);
     }
 
     addActions(actions: { [name: string]: I.Action<T> }) {
@@ -71,9 +71,9 @@ export default class ByunX<T extends object> {
     on(handler: I.Handler<T>): this
     on(name: string | I.Handler<T>, handler?: I.Handler<T>): this {
         if (typeof name === "function") {
-            this.emitter.on("*", name);
+            this._emitter.on("*", name);
         } else if (typeof handler === "function") {
-            this.emitter.on(name, handler);
+            this._emitter.on(name, handler);
         }
 
         return this;
@@ -83,12 +83,11 @@ export default class ByunX<T extends object> {
     off(handler: I.Handler<T>): this
     off(name: string | I.Handler<T>, handler?: I.Handler<T>): this {
         if (typeof name === "function") {
-            this.emitter.off(name as Function);
-
+            this._emitter.off(name as Function);
             return this;
         }
 
-        this.emitter.off(name, handler);
+        this._emitter.off(name, handler);
 
         return this;
     }
@@ -99,7 +98,6 @@ export default class ByunX<T extends object> {
 
         if (this.hasAction(name)) {
             this.doAction(name, args);
-
             this.regenerateReadOnlyData();
         }
 
@@ -116,6 +114,7 @@ export default class ByunX<T extends object> {
     }
 
     private triggerHandlerByEvent(event: I.Event<T>) {
-        this.emitter.trigger(event.name, [event]);
+        this._emitter.trigger(event.name, [event]);
     }
 };
+
