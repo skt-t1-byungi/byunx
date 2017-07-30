@@ -8,11 +8,9 @@
     "removeComments": true,
     "strict": true,
     "importHelpers": true,
-    "downlevelIteration": true,
     "lib": [
       "dom",
-      "es5",
-      "esnext"
+      "es5"
     ]
   },
   "include": [

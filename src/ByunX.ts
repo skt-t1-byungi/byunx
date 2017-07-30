@@ -1,5 +1,7 @@
 import {deepcopy, deepfreeze, object_each, object_get} from "./util.js"
 import Emitter from "./Emitter";
+import Builder from "./Stream/Builder";
+import RootStream from "./Stream/RootStream";
 
 export namespace I {
     export interface Event<T extends object> {
@@ -28,6 +30,10 @@ export default class ByunX<T extends object> {
     private _readOnlyData: Readonly<T>;
 
     private _actions: I.Actions<T> = {};
+
+    private _builder: Builder;
+
+    private _rootStream: RootStream;
 
     private _emitter = new Emitter;
 
@@ -98,6 +104,7 @@ export default class ByunX<T extends object> {
 
         if (this.hasAction(name)) {
             this.doAction(name, args);
+
             this.regenerateReadOnlyData();
         }
 
@@ -115,6 +122,20 @@ export default class ByunX<T extends object> {
 
     private triggerHandlerByEvent(event: I.Event<T>) {
         this._emitter.trigger(event.name, [event]);
+    }
+
+    stream() {
+        if (!this._builder) {
+            this._rootStream = new RootStream();
+
+            this.on(({data}) => {
+                this._rootStream.fire(data);
+            });
+
+            this._builder = new Builder([this._rootStream]);
+        }
+
+        return this._builder;
     }
 };
 

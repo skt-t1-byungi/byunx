@@ -1,32 +1,36 @@
-import map, {I as MapI} from "./operators/map";
-import filter, {I as FilterI} from "./operators/filter";
-import take from "./operators/take";
+import RootStream, {I} from "./RootStream";
+import {Operator} from "./Operator/Operator";
 
-async function each(iterable: AsyncIterable<any>, fn: (v: any) => void) {
-    for await (let value of iterable) {
-        fn(value);
-    }
-}
+export default class Stream extends RootStream {
+    private parent: I.ParentStream | null;
 
-export default class Stream {
-    constructor(private iterable: AsyncIterable<any>) {
+    constructor(private operator: Operator) {
+        super();
     }
 
-    map(fn: MapI.Handler) {
-        new Stream(map(this.iterable, fn));
+    connect(parent: I.ParentStream) {
+        if (!this.parent) {
+            this.parent = parent;
+            parent.addChildren(this);
+        }
     }
 
-    filter(fn: FilterI.Handler) {
-        new Stream(filter(this.iterable, fn));
+    disconnect() {
+        if (this.parent) {
+            this.parent.removeChildren(this);
+            this.parent = null;
+        }
     }
 
-    take(i: number) {
-        new Stream(take(this.iterable, i));
-    }
+    next(value: any) {
+        const {done, pass, value: newValue} = this.operator.operate(value);
 
-    subscribe(fn: (v: any) => void) {
-        each(this.iterable, fn);
-
-        return this;
+        if (!pass) {
+            return;
+        } else if (done) {
+            this.disconnect()
+        } else {
+            this.fire(newValue)
+        }
     }
 }
