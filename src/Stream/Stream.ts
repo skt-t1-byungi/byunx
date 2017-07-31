@@ -1,36 +1,56 @@
-import RootStream, {I} from "./RootStream";
 import {Operator} from "./Operator/Operator";
+import {array_remove} from "../util.js";
 
-export default class Stream extends RootStream {
-    private parent: I.ParentStream | null;
+export default class Stream {
+    private completed = false;
 
     constructor(private operator: Operator) {
-        super();
     }
 
-    connect(parent: I.ParentStream) {
-        if (!this.parent) {
-            this.parent = parent;
-            parent.addChildren(this);
-        }
+    protected childrens: Stream[] = [];
+
+    isCompleted() {
+        return this.completed;
     }
 
-    disconnect() {
-        if (this.parent) {
-            this.parent.removeChildren(this);
-            this.parent = null;
-        }
+    addChildren(children: Stream) {
+        this.childrens.push(children);
+    }
+
+    removeChildren(children: Stream) {
+        array_remove(this.childrens, children);
     }
 
     next(value: any) {
-        const {done, pass, value: newValue} = this.operator.operate(value);
+        const completed = this.childrens
+            .slice()
+            .filter(children => children.isCompleted());
 
-        if (!pass) {
-            return;
-        } else if (done) {
-            this.disconnect()
-        } else {
-            this.fire(newValue)
+
+        for (let children of completed) {
+            this.removeChildren(children);
         }
+
+        for (let children of this.childrens) {
+            children.operateNext(value);
+        }
+    }
+
+    complete() {
+        this.completed = true;
+
+        for (let children of this.childrens) {
+            children.operateComplete();
+        }
+
+        this.childrens = [];
+    }
+
+    operateNext(value: any) {
+        this.operator.next(value, this);
+    }
+
+    operateComplete() {
+        this.operator.complete(this);
     }
 }

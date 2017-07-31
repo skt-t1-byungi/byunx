@@ -1,4 +1,5 @@
 import {Operator} from "./Operator";
+import Stream from "../Stream";
 
 export namespace I {
     export interface Handler {
@@ -13,11 +14,14 @@ export default class Reduce implements Operator {
         this.prevResult = initValue;
     }
 
-    operate(value: any) {
+    next(value: any, stream: Stream): void {
         const newValue = this.handler(this.prevResult, value);
 
         this.prevResult = newValue;
 
-        return {done: false, pass: false, value: newValue};
+        stream.next(newValue);
+    }
+
+    complete(stream: Stream): void {
     }
 }

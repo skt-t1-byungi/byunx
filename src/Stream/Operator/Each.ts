@@ -1,4 +1,5 @@
 import {Operator} from "./Operator";
+import Stream from "../Stream";
 
 export namespace I {
     export interface Handler {
@@ -10,9 +11,12 @@ export default class Each implements Operator {
     constructor(private handler: I.Handler) {
     }
 
-    operate(value: any) {
+    next(value: any, stream: Stream): void {
         this.handler(value);
 
-        return {done: false, pass: false, value};
+        stream.next(value);
+    }
+
+    complete(stream: Stream): void {
     }
 }

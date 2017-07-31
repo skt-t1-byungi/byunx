@@ -1,9 +1,7 @@
-export interface OperatorResult {
-    done: boolean,
-    value: any,
-    pass: boolean
-}
+import Stream from "../Stream";
 
 export interface Operator {
-    operate(value: any): OperatorResult;
+    next(value: any, stream: Stream): void;
+
+    complete(stream: Stream): void;
 }

@@ -6,10 +6,11 @@ import Filter, {I as FilterI} from "./Operator/Filter";
 import Take from "./Operator/Take"
 import Stream from "./Stream";
 import {Operator} from "./Operator/Operator";
-import {I as StreamI} from "./RootStream";
+import Store from "../Store";
 
 export default class Builder {
-    constructor(private streams: StreamI.ParentStream[]) {
+
+    constructor(private streams: Stream[], private store: Store<any>) {
     }
 
     drop(amount: number) {
@@ -32,8 +33,12 @@ export default class Builder {
         return this.withOperator(new Take(limit));
     }
 
-    subscribe(handler: EachI.Handler) {
+    subscribe(handler: EachI.Handler, immediately: boolean = true) {
         (this.withOperator(new Each(handler))).build();
+
+        if (immediately) {
+            this.store.callStreamNext();
+        }
 
         return this;
     }
@@ -43,16 +48,16 @@ export default class Builder {
     }
 
     private withStream(stream: Stream) {
-        return new Builder([...this.streams, stream]);
+        return new Builder([...this.streams, stream], this.store);
     }
 
     private build() {
         this.streams
-            .reverse()
-            .reduce((previousStream: StreamI.ParentStream | null, stream) => {
-                if (previousStream) {
-                    (previousStream as Stream).connect(stream);
+            .reduce((parent: Stream | null, stream) => {
+                if (parent) {
+                    parent.addChildren(stream);
                 }
+
                 return stream;
             }, null);
     }

@@ -1,15 +1,8 @@
 import {Operator} from "./Operator";
 import Stream from "../Stream";
 
-export default class Drop implements Operator {
-    constructor(private amount: number) {
-    }
-
+export default class NoOp implements Operator {
     next(value: any, stream: Stream): void {
-        if (this.amount-- > 0) {
-            return;
-        }
-
         stream.next(value);
     }
 

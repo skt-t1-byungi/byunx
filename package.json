@@ -9,7 +9,7 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "tsc",
-    "test": "mocha --compilers ts:ts-node/register tests/**.test.ts",
+    "test": "mocha --compilers ts:ts-node/register tests/**/*.test.ts",
     "test:watch": "mocha --watch --compilers ts:ts-node/register tests/**.test.ts"
   },
   "author": "",

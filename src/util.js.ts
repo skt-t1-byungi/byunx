@@ -7,11 +7,9 @@ export function deepfreeze<T extends object>(o: T): T {
 
     for (let propKey in o) {
         const prop = o[propKey];
-
         if (!o.hasOwnProperty(propKey) || !(typeof prop === 'object') || Object.isFrozen(prop)) {
             continue;
         }
-
         deepfreeze(prop);
     }
 
@@ -42,6 +40,10 @@ export function array_remove(arr: any[], ...items: any[]) {
             arr.splice(idx, 1);
         }
     }
+}
+
+export function array_last(arr: any[]) {
+    return arr[arr.length - 1];
 }
 
 export function object_each<T extends object, K extends keyof T>(obj: T, each: (v: any, key: K) => void) {

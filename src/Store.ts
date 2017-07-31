@@ -5,7 +5,7 @@ import RootStream from "./Stream/RootStream";
 
 export namespace I {
     export interface Event<T extends object> {
-        store: ByunX<T>,
+        store: Store<T>,
         name: string
         data: T,
         args: any[]
@@ -24,7 +24,7 @@ export namespace I {
     }
 }
 
-export default class ByunX<T extends object> {
+export default class Store<T extends object> {
     private _data: T;
 
     private _readOnlyData: Readonly<T>;
@@ -33,7 +33,7 @@ export default class ByunX<T extends object> {
 
     private _builder: Builder;
 
-    private _rootStream: RootStream;
+    private _rootStream: RootStream = new RootStream();
 
     private _emitter = new Emitter;
 
@@ -126,16 +126,18 @@ export default class ByunX<T extends object> {
 
     stream() {
         if (!this._builder) {
-            this._rootStream = new RootStream();
-
-            this.on(({data}) => {
-                this._rootStream.fire(data);
+            this.on(() => {
+                this.callStreamNext();
             });
 
-            this._builder = new Builder([this._rootStream]);
+            this._builder = new Builder([this._rootStream], this);
         }
 
         return this._builder;
+    }
+
+    callStreamNext() {
+        this._rootStream.next(this.get());
     }
 };
 
