@@ -1,7 +1,8 @@
 import {deepcopy, deepfreeze, object_each, object_get} from "./util.js"
 import Emitter from "./Emitter";
 import Builder from "./Stream/Builder";
-import RootStream from "./Stream/RootStream";
+import Stream from "./Stream/Stream";
+import FromStore from "./Stream/Operator/FromStore";
 
 export namespace I {
     export interface Event<T extends object> {
@@ -33,7 +34,7 @@ export default class Store<T extends object> {
 
     private _builder: Builder;
 
-    private _rootStream: RootStream = new RootStream();
+    private _rootStream: Stream = new Stream(new FromStore(this));
 
     private _emitter = new Emitter;
 
@@ -126,18 +127,12 @@ export default class Store<T extends object> {
 
     stream() {
         if (!this._builder) {
-            this.on(() => {
-                this.callStreamNext();
-            });
-
-            this._builder = new Builder([this._rootStream], this);
+            this.on(() => this._rootStream.operateNext());
+            
+            this._builder = new Builder([this._rootStream]);
         }
 
         return this._builder;
-    }
-
-    callStreamNext() {
-        this._rootStream.next(this.get());
     }
 };
 

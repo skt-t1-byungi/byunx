@@ -10,6 +10,10 @@ export default class Take implements Operator {
             stream.next(value);
         }
 
+        if (this.limit > 0) {
+            return;
+        }
+
         stream.complete();
     }
 

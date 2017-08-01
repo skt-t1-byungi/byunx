@@ -1,7 +1,8 @@
 import {Operator} from "./Operator/Operator";
 import {array_remove} from "../util.js";
+import {OperateNextStream} from "./OperateNextStream";
 
-export default class Stream {
+export default class Stream implements OperateNextStream {
     private completed = false;
 
     constructor(private operator: Operator) {
@@ -14,7 +15,9 @@ export default class Stream {
     }
 
     addChildren(children: Stream) {
-        this.childrens.push(children);
+        if (this.childrens.indexOf(children) === -1) {
+            this.childrens.push(children);
+        }
     }
 
     removeChildren(children: Stream) {
@@ -46,7 +49,7 @@ export default class Stream {
         this.childrens = [];
     }
 
-    operateNext(value: any) {
+    operateNext(value?: any) {
         this.operator.next(value, this);
     }
 

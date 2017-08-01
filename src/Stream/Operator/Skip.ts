@@ -1,7 +1,7 @@
 import {Operator} from "./Operator";
 import Stream from "../Stream";
 
-export default class Drop implements Operator {
+export default class Skip implements Operator {
     constructor(private amount: number) {
     }
 

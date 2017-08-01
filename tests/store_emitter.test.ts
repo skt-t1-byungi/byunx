@@ -1,8 +1,7 @@
 import Store, {I} from "../src/Store";
 import {assert} from "chai";
-import Builder from "../src/Stream/Builder";
 
-describe("Store", () => {
+describe("Store#emitter", () => {
     const store = new Store({
         a: 1, b: 2, c: [1, 2, 3], d: {a: {b: {c: 4}}}
     });
@@ -201,110 +200,6 @@ describe("Store", () => {
 
             assert.isFalse(called1);
             assert.isTrue(called2);
-        });
-    });
-
-    describe("stream", () => {
-        const data = {value: "default"};
-        let store: Store<typeof data>;
-        let stream: Builder;
-
-        beforeEach(() => {
-            store = new Store(data);
-            stream = store.stream();
-
-            store.addAction("update", function (value) {
-                this.value = value;
-            });
-        });
-
-        describe("subscribe", () => {
-            it("immediately(default)", () => {
-                let capture: any = null;
-
-                stream.subscribe(({value}) => {
-                    capture = value;
-                });
-                assert.equal(capture, "default");
-
-                store.dispatch("update", "test");
-                assert.equal(capture, "test");
-            });
-
-            it("not immediately", () => {
-                let capture: any = null;
-
-                stream.subscribe(({value}) => {
-                    capture = value;
-                }, false);
-
-                assert.isNull(capture);
-
-                store.dispatch("update", "test");
-                assert.equal(capture, "test");
-            });
-        });
-
-        it("map", () => {
-            let capture1: any = null;
-            let capture2: any = null;
-
-            stream
-                .map((v, i) => {
-                    return {i, str: v.value};
-                })
-                .subscribe(({i, str}) => {
-                    capture1 = i;
-                    capture2 = str;
-                });
-
-            assert.equal(capture1, 0);
-            assert.equal(capture2, "default");
-
-            store.dispatch("update", "test");
-
-            assert.equal(capture1, 1);
-            assert.equal(capture2, "test");
-        });
-
-        it("map & filter", () => {
-            let capture1: any = null;
-            let capture2: any = null;
-            let calls1 = 0;
-            let calls2 = 0;
-
-            stream
-                .map((v, i) => {
-                    calls1++;
-                    return {i, str: v.value};
-                })
-                .filter((v, i) => {
-                    calls2++;
-                    return i % 2 === 0 && i > 0;
-                })
-                .subscribe(({i, str}) => {
-                    capture1 = i;
-                    capture2 = str;
-                });
-
-            assert.isNull(capture1);
-            assert.isNull(capture2);
-            assert.equal(calls1, 1);
-            assert.equal(calls2, 1);
-
-            store.dispatch("update", "test");
-
-            assert.isNull(capture1);
-            assert.isNull(capture2);
-            assert.equal(calls1, 2);
-            assert.equal(calls2, 2);
-
-            store.dispatch("update", "test");
-
-            assert.equal(capture1, 2);
-            assert.equal(capture2, "test");
-            assert.equal(calls1, 3);
-            assert.equal(calls2, 3);
         });
     });
 });
