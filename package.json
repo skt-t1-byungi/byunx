@@ -1,27 +1,28 @@
 {
   "name": "byunx",
+  "author": "skt-t1-byungi",
   "version": "0.0.1",
-  "description": "simple state management",
-  "main": "dist/index",
+  "description": "state management + reactive",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "directories": {
     "test": "tests"
   },
   "scripts": {
     "prepublishOnly": "npm run build",
+    "webpack": "npm run build & webpack -p dist/index.js ./byunx.min.js",
     "build": "tsc",
     "test": "mocha --compilers ts:ts-node/register tests/**/*.test.ts",
     "test:watch": "mocha --watch --compilers ts:ts-node/register tests/**.test.ts"
   },
-  "author": "",
   "license": "MIT",
   "devDependencies": {
     "@types/chai": "^4.0.1",
-    "@types/core-js": "^0.9.42",
     "@types/mocha": "^2.2.41",
     "chai": "^4.1.0",
     "mocha": "^3.4.2",
     "ts-node": "^3.3.0",
-    "tslib": "^1.7.1",
-    "typescript": "^2.4.2"
+    "typescript": "^2.4.2",
+    "webpack": "^3.4.1"
   }
 }

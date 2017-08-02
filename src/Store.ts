@@ -8,7 +8,7 @@ export namespace I {
     export interface Event<T extends object> {
         store: Store<T>,
         name: string
-        data: T,
+        data: T & { [name: string]: any },
         args: any[]
     }
 
@@ -32,10 +32,6 @@ export namespace I {
         [prop: string]: ComputedGetter<T>
     }
 
-    export interface CachedComputedProperty {
-        [prop: string]: any
-    }
-
     export interface Queue {
         name: string,
         args: any[]
@@ -48,8 +44,6 @@ export default class Store<T extends object> {
     private _readOnlyData: Readonly<T>;
 
     private _computedGetters: I.ComputedGetters<T>;
-
-    private _cacheComputedProps: I.CachedComputedProperty = {};
 
     private _actions: I.Actions<T> = {};
 
@@ -75,21 +69,13 @@ export default class Store<T extends object> {
     }
 
     private applyComputedGetters(data: T) {
-        this._cacheComputedProps = {};
+        const getters = this._computedGetters;
 
-        Object.keys(this._computedGetters)
-            .forEach((prop) => {
-                Object.defineProperty(data, prop, {
-                    get: () => {
-                        if (!this._cacheComputedProps.hasOwnProperty(prop)) {
-                            this._cacheComputedProps[prop] = this._computedGetters[prop].call(data);
-                        }
-                        return this._cacheComputedProps[prop];
-                    },
-                    enumerable: true,
-                    configurable: false
-                });
+        for (let prop in getters) {
+            Object.defineProperty(data, prop, {
+                get: getters[prop].bind(data),
             });
+        }
 
         return data;
     }
@@ -151,6 +137,7 @@ export default class Store<T extends object> {
 
         if (this.hasAction(name)) {
             this.doAction(name, args);
+
             this.regenerateReadOnlyData();
         }
 

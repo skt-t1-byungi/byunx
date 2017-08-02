@@ -22,7 +22,6 @@ import {array_last} from "../util.js";
 import {OperateNextStream} from "./OperateNextStream";
 
 export default class Builder {
-
     constructor(private streams: OperateNextStream[]) {
     }
 
