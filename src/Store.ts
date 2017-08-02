@@ -23,6 +23,23 @@ export namespace I {
     export interface Actions<T extends object> {
         [name: string]: Action<T>;
     }
+
+    export interface ComputedGetter<T extends object> {
+        (this: T & { [name: string]: any }): any;
+    }
+
+    export interface ComputedGetters<T extends object> {
+        [prop: string]: ComputedGetter<T>
+    }
+
+    export interface CachedComputedProperty {
+        [prop: string]: any
+    }
+
+    export interface Queue {
+        name: string,
+        args: any[]
+    }
 }
 
 export default class Store<T extends object> {
@@ -30,7 +47,15 @@ export default class Store<T extends object> {
 
     private _readOnlyData: Readonly<T>;
 
+    private _computedGetters: I.ComputedGetters<T>;
+
+    private _cacheComputedProps: I.CachedComputedProperty = {};
+
     private _actions: I.Actions<T> = {};
+
+    private _queues: I.Queue[] = [];
+
+    private _resolveQueueTimeout: number | null = null;
 
     private _builder: Builder;
 
@@ -38,14 +63,35 @@ export default class Store<T extends object> {
 
     private _emitter = new Emitter;
 
-    constructor(data: T) {
+    constructor(data: T, computedGetters: I.ComputedGetters<T> = {}) {
         this._data = deepcopy(data);
+        this._computedGetters = computedGetters;
 
         this.regenerateReadOnlyData();
     }
 
     private regenerateReadOnlyData() {
-        this._readOnlyData = deepfreeze(deepcopy(this._data));
+        this._readOnlyData = deepfreeze(this.applyComputedGetters(deepcopy(this._data)));
+    }
+
+    private applyComputedGetters(data: T) {
+        this._cacheComputedProps = {};
+
+        Object.keys(this._computedGetters)
+            .forEach((prop) => {
+                Object.defineProperty(data, prop, {
+                    get: () => {
+                        if (!this._cacheComputedProps.hasOwnProperty(prop)) {
+                            this._cacheComputedProps[prop] = this._computedGetters[prop].call(data);
+                        }
+                        return this._cacheComputedProps[prop];
+                    },
+                    enumerable: true,
+                    configurable: false
+                });
+            });
+
+        return data;
     }
 
     get(key?: string, defaultValue = null) {
@@ -100,25 +146,56 @@ export default class Store<T extends object> {
     }
 
     dispatch(name: string, ...args: any[]) {
-        this.triggerHandler(`${name}:before`, args);
         this.triggerHandler(`*:before`, args);
+        this.triggerHandler(`${name}:before`);
 
         if (this.hasAction(name)) {
             this.doAction(name, args);
-
             this.regenerateReadOnlyData();
         }
 
         this.triggerHandler(name, args);
-        this.triggerHandler("*", args);
+        this.triggerHandler("*");
     }
 
-    private triggerHandler(name: string, args: any[]) {
+    dispatchQ(name: string, ...args: any[]) {
+        this._queues.push({name, args});
+
+        if (!this._resolveQueueTimeout) {
+            this._resolveQueueTimeout = setTimeout(() => this.resolveQueue(), 0);
+        }
+    }
+
+    private resolveQueue() {
+        this._resolveQueueTimeout = null;
+
+        this.triggerHandler(`*:before`);
+
+        for (let {name, args} of this._queues) {
+            this.triggerHandler(`${name}:before`);
+
+            if (this.hasAction(name)) {
+                this.doAction(name, args);
+            }
+        }
+
+        this.regenerateReadOnlyData();
+
+        for (let {name, args} of this._queues) {
+            this.triggerHandler(name, args);
+        }
+
+        this.triggerHandler("*");
+
+        this._queues = [];
+    }
+
+    private triggerHandler(name: string, args: any[] = []) {
         this.triggerHandlerByEvent(this.makeEvent(name, args));
     }
 
-    private makeEvent(name: string, args: any[]): I.Event<T> {
-        return {store: this, name, args, data: this._readOnlyData};
+    private makeEvent(name: string, args: any[] = []): I.Event<T> {
+        return {store: this, name, args, data: this.get()};
     }
 
     private triggerHandlerByEvent(event: I.Event<T>) {
@@ -128,7 +205,7 @@ export default class Store<T extends object> {
     stream() {
         if (!this._builder) {
             this.on(() => this._rootStream.operateNext());
-            
+
             this._builder = new Builder([this._rootStream]);
         }
 

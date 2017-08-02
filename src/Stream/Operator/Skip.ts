@@ -6,7 +6,7 @@ export default class Skip implements Operator {
     }
 
     next(value: any, stream: Stream): void {
-        if (this.amount-- > 0) {
+        if (--this.amount > 0) {
             return;
         }
 

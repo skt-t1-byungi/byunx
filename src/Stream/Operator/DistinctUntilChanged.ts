@@ -1,7 +1,7 @@
 import {Operator} from "./Operator";
 import Stream from "../Stream";
 
-export default class Distinct implements Operator {
+export default class DistinctUntilChanged implements Operator {
     private previous: any;
 
     private first = true;

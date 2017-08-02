@@ -2,22 +2,6 @@ import Store, {I} from "../src/Store";
 import {assert} from "chai";
 
 describe("Store#emitter", () => {
-    const store = new Store({
-        a: 1, b: 2, c: [1, 2, 3], d: {a: {b: {c: 4}}}
-    });
-
-    describe("get", () => {
-        it("base", () => {
-            assert.equal(store.get('a'), 1);
-            assert.equal(store.get('c.0'), 1);
-            assert.equal(store.get('d.a.b.c'), 4);
-        });
-
-        it("immutable", () => {
-            assert.isFrozen(store.get('d.a.b.c'));
-        });
-    });
-
     describe("action", () => {
         const store = new Store({});
 

@@ -4,7 +4,7 @@ import Stream from "../Stream";
 export default class Buffer implements Operator {
     private buffer: any[] = [];
 
-    constructor(private size: number = -1) {
+    constructor(private size: number) {
     }
 
     next(value: any, stream: Stream): void {

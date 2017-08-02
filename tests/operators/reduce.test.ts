@@ -1,24 +1,26 @@
 import {beforeEachCreateStore} from "../heplers";
 import {assert} from "chai";
 
-describe("operators#skip", () => {
+describe("operators#reduce", () => {
     const stub = beforeEachCreateStore();
 
-    it("skip#3", () => {
+    it("base", () => {
         let capture: any = null;
         let calls = 0;
 
-        stub.stream.skip(3)
-            .subscribe(({value}) => {
+        stub.stream
+            .take(3)
+            .reduce((p, v, i) => p + i, 5)
+            .subscribe(value => {
                 capture = value;
                 calls++;
             });
 
-        stub.store.dispatch("update", 1);
+        stub.store.dispatch("update", "1");
         assert.equal(calls, 0);
-
-        stub.store.dispatch("update", 2);
-        assert.equal(capture, 2);
+        stub.store.dispatch("update", "2");
+        assert.equal(capture, 8);
         assert.equal(calls, 1);
     });
+
 });
