@@ -1,3 +1,6 @@
-src
-tests
-.idea
+src/
+tests/
+.idea/
+byunx.min.js
+tsconfig.json
+.gitignore

@@ -1,12 +1,20 @@
 {
   "name": "byunx",
-  "author": "skt-t1-byungi",
+  "author": {
+    "name": "skt-t1-byungi",
+    "url": "http://byungi.kr",
+    "email": "zeronin2@gmail.com"
+  },
   "version": "0.0.1",
-  "description": "state management + reactive",
+  "description": "state management + reactive stream",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "directories": {
     "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skt-t1-byungi/byunx.git"
   },
   "scripts": {
     "prepublishOnly": "npm run build",

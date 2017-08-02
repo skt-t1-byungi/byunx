@@ -12,7 +12,7 @@ export namespace I {
         args: any[]
     }
 
-    export interface Handler<T extends object> {
+    export interface Listener<T extends object> {
         (event: Event<T>): void
     }
 
@@ -80,7 +80,7 @@ export default class Store<T extends object> {
         return data;
     }
 
-    get(key?: string, defaultValue = null) {
+    get(key?: string, defaultValue?: any) {
         if (!key) {
             return this._readOnlyData;
         }
@@ -106,34 +106,34 @@ export default class Store<T extends object> {
         this._actions[name].apply(this._data, args);
     }
 
-    on(name: string, handler: I.Handler<T>): this
-    on(handler: I.Handler<T>): this
-    on(name: string | I.Handler<T>, handler?: I.Handler<T>): this {
+    on(name: string, listener: I.Listener<T>): this
+    on(listener: I.Listener<T>): this
+    on(name: string | I.Listener<T>, listener?: I.Listener<T>): this {
         if (typeof name === "function") {
             this._emitter.on("*", name);
-        } else if (typeof handler === "function") {
-            this._emitter.on(name, handler);
+        } else if (typeof listener === "function") {
+            this._emitter.on(name, listener);
         }
 
         return this;
     }
 
-    off(name: string, handler?: I.Handler<T>): this
-    off(handler: I.Handler<T>): this
-    off(name: string | I.Handler<T>, handler?: I.Handler<T>): this {
+    off(name: string, listener?: I.Listener<T>): this
+    off(listener: I.Listener<T>): this
+    off(name: string | I.Listener<T>, listener?: I.Listener<T>): this {
         if (typeof name === "function") {
             this._emitter.off(name as Function);
             return this;
         }
 
-        this._emitter.off(name, handler);
+        this._emitter.off(name, listener);
 
         return this;
     }
 
     dispatch(name: string, ...args: any[]) {
-        this.triggerHandler(`*:before`, args);
-        this.triggerHandler(`${name}:before`);
+        this.triggerEvent(`*:before`, args);
+        this.triggerEvent(`${name}:before`);
 
         if (this.hasAction(name)) {
             this.doAction(name, args);
@@ -141,8 +141,8 @@ export default class Store<T extends object> {
             this.regenerateReadOnlyData();
         }
 
-        this.triggerHandler(name, args);
-        this.triggerHandler("*");
+        this.triggerEvent(name, args);
+        this.triggerEvent("*");
     }
 
     dispatchQ(name: string, ...args: any[]) {
@@ -156,10 +156,10 @@ export default class Store<T extends object> {
     private resolveQueue() {
         this._resolveQueueTimeout = null;
 
-        this.triggerHandler(`*:before`);
+        this.triggerEvent(`*:before`);
 
         for (let {name, args} of this._queues) {
-            this.triggerHandler(`${name}:before`);
+            this.triggerEvent(`${name}:before`);
 
             if (this.hasAction(name)) {
                 this.doAction(name, args);
@@ -169,23 +169,23 @@ export default class Store<T extends object> {
         this.regenerateReadOnlyData();
 
         for (let {name, args} of this._queues) {
-            this.triggerHandler(name, args);
+            this.triggerEvent(name, args);
         }
 
-        this.triggerHandler("*");
+        this.triggerEvent("*");
 
         this._queues = [];
     }
 
-    private triggerHandler(name: string, args: any[] = []) {
-        this.triggerHandlerByEvent(this.makeEvent(name, args));
+    private triggerEvent(name: string, args: any[] = []) {
+        this.triggerEventByEventObject(this.makeEvent(name, args));
     }
 
     private makeEvent(name: string, args: any[] = []): I.Event<T> {
         return {store: this, name, args, data: this.get()};
     }
 
-    private triggerHandlerByEvent(event: I.Event<T>) {
+    private triggerEventByEventObject(event: I.Event<T>) {
         this._emitter.trigger(event.name, [event]);
     }
 

@@ -61,8 +61,8 @@ export default class Builder {
         return this.withOperator(new Buffer(size));
     }
 
-    debounce(wait: number = 100, immediate = false) {
-        return this.withOperator(new Debounce(wait, immediate));
+    debounce(milliseconds: number = 100, immediate = false) {
+        return this.withOperator(new Debounce(milliseconds, immediate));
     }
 
     delay(milliseconds: number) {
