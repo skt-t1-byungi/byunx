@@ -176,7 +176,7 @@ return stream
 
 ### Stream
 
-#### <a id="#stream-buffer"></a>
+#### <a id="stream-buffer"></a>
 #### `buffer(size: number)`
 ```
 1--3---4------5---3----2------
@@ -192,7 +192,7 @@ store.dispatch("update", 2, 3);
 //[ {a:1,b:2,sum:3}, {a:2,b:3,sum:5} ]
 ```
 
-#### <a id="#stream-debounce"></a>
+#### <a id="stream-debounce"></a>
 #### `debounce(milliseconds: number = 100, immediate?: boolean)`
 ```
 -1-------2--3--4--5------6----
@@ -200,7 +200,7 @@ store.dispatch("update", 2, 3);
 ----1-----------------5------6
 ```
 
-#### <a id="#stream-delay"></a>
+#### <a id="stream-delay"></a>
 #### `delay(milliseconds: number)`
 ```
 -1-------2--3--4--5------6----
@@ -208,7 +208,7 @@ store.dispatch("update", 2, 3);
 ----1-------2--3--4--5------6-
 ```
 
-#### <a id="#stream-distinct"></a>
+#### <a id="stream-distinct"></a>
 #### `distinct()`
 ```
 -1-------2--1--1--2------3-
@@ -216,7 +216,7 @@ store.dispatch("update", 2, 3);
 -1-------2---------------3-
 ```
 
-#### <a id="#stream-distinctUntilChanged"></a>
+#### <a id="stream-distinctUntilChanged"></a>
 #### `distinctUntilChanged()`
 ```
 -1-------2--1--1--2------3--
@@ -224,7 +224,7 @@ store.dispatch("update", 2, 3);
 -1-------2--1-----2------3--
 ```
 
-#### <a id="#stream-filter"></a>
+#### <a id="stream-filter"></a>
 #### `filter(handler: function)`
 ```
 -1-------2--1--1--2------3---
@@ -232,7 +232,7 @@ store.dispatch("update", 2, 3);
 -1----------1-----2----------
 ```
 
-#### <a id="#stream-flatMap"></a>
+#### <a id="stream-flatMap"></a>
 #### `flatMap(handler: function)`
 ```
 -1----2---3-------4-------
@@ -240,7 +240,7 @@ store.dispatch("update", 2, 3);
 -10---21--32------43------
 ```
 
-#### <a id="#stream-last"></a>
+#### <a id="stream-last"></a>
 #### `last()`
 ```
 --1----2---3-------4|
@@ -248,7 +248,7 @@ store.dispatch("update", 2, 3);
 -------------------4|
 ```
 
-#### <a id="#stream-map"></a>
+#### <a id="stream-map"></a>
 #### `map(handler: function)`
 ```
 -1----2---3-------4--
@@ -256,7 +256,7 @@ store.dispatch("update", 2, 3);
 -2----4---6-------8--
 ```
 
-#### <a id="#stream-merge"></a>
+#### <a id="stream-merge"></a>
 #### `merge(stream)`
 ```
 -1----2---3-------4--
@@ -271,7 +271,7 @@ store1.stream()
     .subscribe(v=>console.log(v));
 ```
 
-#### <a id="#stream-pluck"></a>
+#### <a id="stream-pluck"></a>
 #### `pluck(key: string)`
 ```js
 store.stream()
@@ -283,7 +283,7 @@ store.update("update", 2, 3);
 // sum: 5
 ```
 
-#### <a id="#stream-publish"></a>
+#### <a id="stream-publish"></a>
 #### `publish()`
 ```js
 const stream = store.stream()
@@ -298,7 +298,7 @@ stream.publish();
 ```
 publish to child stream
 
-#### <a id="#stream-reduce"></a>
+#### <a id="stream-reduce"></a>
 #### `reduce()`
 ```
 -----1----2------3-------4|
@@ -306,7 +306,7 @@ reduce((prev,v)=>prev+v, 0)
 -------------------------10|
 ```
 
-#### <a id="#stream-scan"></a>
+#### <a id="stream-scan"></a>
 #### `scan(handler: function, initValue = null)`
 ```
 -----1----2------3-------4|
@@ -314,7 +314,7 @@ scan((prev,v)=>prev+v, 0)
 -----1----3------6-------10|
 ```
 
-#### <a id="#stream-skip"></a>
+#### <a id="stream-skip"></a>
 #### `skip(amount: number)`
 ```
 --1----2---3----4-----5--
@@ -322,7 +322,7 @@ scan((prev,v)=>prev+v, 0)
 ----------------4-----5--
 ```
 
-#### <a id="#stream-subscribe"></a>
+#### <a id="stream-subscribe"></a>
 #### `subscribe(handler: function, immediately?: boolean=true)`
 subscribe stream. If immediately option is false, it will be subscribed after dispatch or publish.
 ```js
@@ -335,7 +335,7 @@ stream.publish();
 ```
 
 
-#### <a id="#stream-take"></a>
+#### <a id="stream-take"></a>
 #### `take(limit: number)`
 ```
 --1----2---3----4-----5--
@@ -343,7 +343,7 @@ stream.publish();
 --1----2---3|
 ```
 
-#### <a id="#stream-throttle"></a>
+#### <a id="stream-throttle"></a>
 #### `throttle(milliseconds: number = 100)`
 ```
 -1------2-3-4-5-6-----
@@ -351,7 +351,7 @@ stream.publish();
 -1------2---4---6-----
 ```
 
-#### <a id="#stream-zip"></a>
+#### <a id="stream-zip"></a>
 #### `zip(...streams)`
 ```
 ---1--------2---3---------
