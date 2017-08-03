@@ -1,6 +1,19 @@
 # ByunX
 [![NPM](https://nodei.co/npm/byunx.png?compact=true)](https://nodei.co/npm/byunx/)
+
 state management + event emitter + reactive stream
+
+## Usage
+```sh
+npm i byunx
+```
+```js
+//es6
+import {createStore} from "byunx";
+
+//commonjs
+var createStore = require('byunx').createStore;
+```
 
 ## Examples
 
