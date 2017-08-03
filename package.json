@@ -6,7 +6,7 @@
     "email": "zeronin2@gmail.com"
   },
   "version": "0.0.1",
-  "description": "state management + reactive stream",
+  "description": "state management + event emitter + reactive stream",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "directories": {

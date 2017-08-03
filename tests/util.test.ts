@@ -1,4 +1,4 @@
-import {array_remove, deepcopy, deepfreeze, object_each, object_get} from "../src/util.js";
+import {array_remove, deepcopy, deepfreeze, object_each, object_get} from "../src/util";
 import {assert} from "chai";
 
 describe("utils", () => {

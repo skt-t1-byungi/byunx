@@ -1,6 +1,6 @@
 import {Operator} from "./Operator";
 import Stream from "../Stream";
-import {object_get} from "../../util.js";
+import {object_get} from "../../util";
 
 export default class Pluck implements Operator {
     constructor(private key: string) {

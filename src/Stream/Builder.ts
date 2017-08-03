@@ -18,7 +18,7 @@ import Distinct from "./Operator/Distinct";
 import Pluck from "./Operator/Pluck";
 import DistinctUntilChanged from "./Operator/DistinctUntilChanged";
 import Throttle from "./Operator/Throttle";
-import {array_last} from "../util.js";
+import {array_last} from "../util";
 import {OperateNextStream} from "./OperateNextStream";
 
 export default class Builder {

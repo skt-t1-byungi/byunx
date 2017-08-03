@@ -1,8 +1,8 @@
-import {deepcopy, deepfreeze, object_each, object_get} from "./util.js"
+import {deepcopy, deepfreeze, object_each, object_get} from "./util"
 import Emitter from "./Emitter";
 import Builder from "./Stream/Builder";
-import Stream from "./Stream/Stream";
 import FromStore from "./Stream/Operator/FromStore";
+import Stream from "./Stream/Stream";
 
 export namespace I {
     export interface Event<T extends object> {
@@ -51,10 +51,6 @@ export default class Store<T extends object> {
 
     private _resolveQueueTimeout: number | null = null;
 
-    private _builder: Builder;
-
-    private _rootStream: Stream = new Stream(new FromStore(this));
-
     private _emitter = new Emitter;
 
     constructor(data: T, computedGetters: I.ComputedGetters<T> = {}) {
@@ -80,7 +76,7 @@ export default class Store<T extends object> {
         return data;
     }
 
-    get(key?: string, defaultValue?: any) {
+    get (key?: string, defaultValue?: any) {
         if (!key) {
             return this._readOnlyData;
         }
@@ -178,10 +174,10 @@ export default class Store<T extends object> {
     }
 
     private triggerEvent(name: string, args: any[] = []) {
-        this.triggerEventByEventObject(this.makeEvent(name, args));
+        this.triggerEventByEventObject(this.makeEventObject(name, args));
     }
 
-    private makeEvent(name: string, args: any[] = []): I.Event<T> {
+    private makeEventObject(name: string, args: any[] = []): I.Event<T> {
         return {store: this, name, args, data: this.get()};
     }
 
@@ -190,13 +186,15 @@ export default class Store<T extends object> {
     }
 
     stream() {
-        if (!this._builder) {
-            this.on(() => this._rootStream.operateNext());
+        const stream = new Stream(new FromStore(this));
 
-            this._builder = new Builder([this._rootStream]);
-        }
+        // 불필요한 스트림이 이벤트 에미터에 계속 남아있을 수 있습니다.
+        // 이벤트리스너를 나중에 등록할 수도 있기 때문에 ES5에서는 불필요한 여부를 판단하기 어렵습니다.
+        // (ES6에서는 weak 맵을 사용해서 불필요한 여부를 판단할 수 있습니다)
+        // 따로 cleanup 메소드를 제공할 지 고민해봐야 할 듯.
+        this.on(() => stream.operateNext());
 
-        return this._builder;
+        return new Builder([stream]);
     }
 };
 

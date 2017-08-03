@@ -1,10 +1,11 @@
 # ByunX
+[![NPM](https://nodei.co/npm/byunx.png?compact=true)](https://nodei.co/npm/byunx/)
 state management + event emitter + reactive stream
 
 ## Examples
 
 ### Basic
-```ecmascript 6
+```js
 const store = createStore({
     data:{ a: 1, b: 2 },
     computed:{
@@ -30,7 +31,7 @@ store.dispatch("update", 3, 4);
 ```
 
 ### Stream
-```ecmascript 6
+```js
 const store = createStore({
     data:{ a: 1, b: 3 },
     computed:{
@@ -95,9 +96,9 @@ store.dispatch("update", 6, 2);
 ### Store
 
 #### <a id="store-get"></a> 
-####`get(key?: string, defaultValue = null)`
+#### `get(key?: string, defaultValue = null)`
 
-```ecmascript 6
+```js
 store.get('a');
 store.get('a.b'); // get nested property value
 ```
@@ -105,22 +106,25 @@ store.get('a.b'); // get nested property value
 #### <a id="store-on"></a> 
 #### `on(name: string, handler: function)`
 
-```ecmascript 6
-store.on("update:before", event=>console.log("update:before", event.data));
-store.on("update", event=>console.log("update", event));
+```js
+store.on("update:before", event=>{
+    console.log("update:before", event.data);
+});
+
+store.on("update", event=>{
+    console.log("updated", event);
+});
+
 store.dispatch("update", 3, 4);
-// update:before
-// {a:1, b:2, sum:3}
-//
-// update
-// {
+// update:before {a:1, b:2, sum:3}
+// updated {
 //     store: store,
 //     name: "update",
 //     args: [3,4],
 //     data:{a:3, b:4, sum:7}
 // }
 ```
-**Global Events** : `*`, `*:before`
+**global events** : `*`, `*:before`
 
 #### `on(handler: function)`
 alias `on("*", listener: function)`
@@ -138,7 +142,7 @@ execute action.
 #### `dispatchQ(name: string, ...args)`
 add action to the queue.
 
-```ecmascript 6
+```js
 store.on("update", event=>console.log("update: ", event.data));
 store.on(event=>console.log("*: ", event.data));
 
@@ -161,60 +165,193 @@ return stream
 
 #### <a id="#stream-buffer"></a>
 #### `buffer(size: number)`
-```ecmascript 6
+```
+1--3---4------5---3----2------
+           buffer(3)
+-------[1,3,4]---------[5,3,2]
+```
+```js
+store.stream()
+    .buffer(2)
+    .subscribe(v=>console.log(v));
 
+store.dispatch("update", 2, 3);
+//[ {a:1,b:2,sum:3}, {a:2,b:3,sum:5} ]
 ```
 
 #### <a id="#stream-debounce"></a>
 #### `debounce(milliseconds: number = 100, immediate?: boolean)`
+```
+-1-------2--3--4--5------6----
+        debounce(300)
+----1-----------------5------6
+```
 
 #### <a id="#stream-delay"></a>
 #### `delay(milliseconds: number)`
+```
+-1-------2--3--4--5------6----
+        delay(300)
+----1-------2--3--4--5------6-
+```
 
 #### <a id="#stream-distinct"></a>
 #### `distinct()`
+```
+-1-------2--1--1--2------3-
+        distinct()
+-1-------2---------------3-
+```
 
 #### <a id="#stream-distinctUntilChanged"></a>
 #### `distinctUntilChanged()`
+```
+-1-------2--1--1--2------3--
+   distinctUntilChanged()
+-1-------2--1-----2------3--
+```
 
 #### <a id="#stream-filter"></a>
 #### `filter(handler: function)`
+```
+-1-------2--1--1--2------3---
+   filter((v,i)=>i%2===0)
+-1----------1-----2----------
+```
 
 #### <a id="#stream-flatMap"></a>
 #### `flatMap(handler: function)`
+```
+-1----2---3-------4-------
+   flatMap((v,i)=>[v,i])
+-10---21--32------43------
+```
 
 #### <a id="#stream-last"></a>
 #### `last()`
+```
+--1----2---3-------4|
+       last()
+-------------------4|
+```
 
 #### <a id="#stream-map"></a>
 #### `map(handler: function)`
+```
+-1----2---3-------4--
+     map(v=>v*2)
+-2----4---6-------8--
+```
 
 #### <a id="#stream-merge"></a>
 #### `merge(stream)`
+```
+-1----2---3-------4--
+---a--------b-c-----d
+    merge(stream)
+-1-a--2---3-b-c---4-d
+```
+```js
+store1.stream()
+    .distinct()
+    .merge(store2.stream().take(5))
+    .subscribe(v=>console.log(v));
+```
 
 #### <a id="#stream-pluck"></a>
 #### `pluck(key: string)`
+```js
+store.stream()
+    .pluck('sum')
+    .subscribe(v=>console.log("sum:", v));
+// sum: 4
+
+store.update("update", 2, 3);
+// sum: 5
+```
 
 #### <a id="#stream-publish"></a>
 #### `publish()`
+```js
+const stream = store.stream()
+    .pluck('sum')
+    .subscribe(v=>console.log("sum:", v));
+//sum: 4
+
+stream.publish();
+//sum: 4
+stream.publish();
+//sum: 4
+```
+publish to child stream
 
 #### <a id="#stream-reduce"></a>
 #### `reduce()`
+```
+-----1----2------3-------4|
+reduce((prev,v)=>prev+v, 0)
+-------------------------10|
+```
 
 #### <a id="#stream-scan"></a>
 #### `scan(handler: function, initValue = null)`
+```
+-----1----2------3-------4|
+scan((prev,v)=>prev+v, 0)
+-----1----3------6-------10|
+```
 
 #### <a id="#stream-skip"></a>
 #### `skip(amount: number)`
+```
+--1----2---3----4-----5--
+        skip(3)
+----------------4-----5--
+```
 
 #### <a id="#stream-subscribe"></a>
-#### `subscribe(handler: function, immediately?: boolean)`
+#### `subscribe(handler: function, immediately?: boolean=true)`
+subscribe stream. If immediately option is false, it will be subscribed after dispatch or publish.
+```js
+const stream = store.stream()
+    .subscribe(v=>console.log("sum:", v), false);
+//nothing
+
+stream.publish();
+// sum 3
+```
+
 
 #### <a id="#stream-take"></a>
 #### `take(limit: number)`
+```
+--1----2---3----4-----5--
+        take(3)
+--1----2---3|
+```
 
 #### <a id="#stream-throttle"></a>
-#### `delay(throttle: number)`
+#### `throttle(milliseconds: number = 100)`
+```
+-1------2-3-4-5-6-----
+     throttle(300)
+-1------2---4---6-----
+```
 
 #### <a id="#stream-zip"></a>
 #### `zip(...streams)`
+```
+---1--------2---3---------
+----a-------------bc------
+---xyz--------------------
+   zip(stream1, stream2)
+---[1,a,x]------[2,b,y][3,c,z]-
+```
+```js
+store1.stream()
+    .zip(store2.stream(), store2.stream().take(5))
+    .subscribe(v=>console.log(v));
+```
+
+## License
+MIT

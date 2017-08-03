@@ -1,4 +1,4 @@
-import {array_remove, object_each} from "./util.js";
+import {array_remove, object_each} from "./util";
 
 namespace I {
     export interface Listeners {

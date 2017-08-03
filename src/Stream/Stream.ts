@@ -1,5 +1,5 @@
 import {Operator} from "./Operator/Operator";
-import {array_remove} from "../util.js";
+import {array_remove} from "../util";
 import {OperateNextStream} from "./OperateNextStream";
 
 export default class Stream implements OperateNextStream {
