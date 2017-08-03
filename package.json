@@ -5,7 +5,7 @@
     "url": "http://byungi.kr",
     "email": "zeronin2@gmail.com"
   },
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "state management + event emitter + reactive stream",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
