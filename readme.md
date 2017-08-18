@@ -46,7 +46,7 @@ store.dispatch("update", 3, 4);
 ### Stream
 ```js
 const store = createStore({
-    data:{ a: 1, b: 3 },
+    data:{ a: 1, b: 2 },
     computed:{
         sum(){ return this.a + this.b; }
     },
